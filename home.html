@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>암호화폐 | Chain LAB</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: #f0f4f8;
+    color: #333;
+  }
+
+  h1, h2, h3 {
+    margin: 0;
+  }
+
+  .top-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .top-navigation > div:first-child {
+    display: flex;
+    gap: 20px;
+  }
+
+  .top-navigation > div:last-child {
+    color: #666;
+    font-weight: 500;
+  }
+
+  .menu-link {
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  .menu-link:hover {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  .logo-link {
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #222;
+    transition: color 0.3s;
+  }
+
+  .logo-link:hover {
+    color: #007bff;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #27496d, #43658b);
+    color: white;
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .hero h1 {
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    color: #e0e6ed;
+  }
+
+  .buttons-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .buttons-container a {
+    border-radius: 25px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 28px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    border: none;
+    color: white;
+  }
+
+  .start-button {
+    background-color: #e67e22; 
+  }
+
+  .buttons-container a:hover {
+    box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+    filter: brightness(0.9);
+  }
+
+  /* ✅ 새 intro-section 스타일 */
+  .intro-section {
+    text-align: center;
+    margin-top: 60px;
+    margin-bottom: 80px;
+  }
+
+  .intro-section h3 {
+    font-size: 1.6rem;
+    color: #143D60;
+    margin-bottom: 35px;
+  }
+
+  .intro-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    flex-wrap: wrap;
+  }
+
+  .intro-text {
+    max-width: 460px;
+    text-align: left;
+    color: #143D60;
+    line-height: 1.8;
+  }
+
+  .intro-text strong {
+    color: #111827;
+  }
+
+  .intro-text .highlight {
+    color: #007bff;
+    font-weight: 600;
+  }
+
+  .intro-image img {
+    width: 400px;
+    max-width: 90%;
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .intro-image img:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  @media (max-width: 768px) {
+    .top-navigation {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .intro-container {
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .intro-text {
+      text-align: center;
+    }
+
+    .intro-image img {
+      width: 80%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- 상단 로고 -->
+<h1 style="padding: 20px 40px; margin: 0;">
+  <a href="home.html" class="logo-link">Chain LAB</a>
+</h1>
+
+<!-- 네비게이션 -->
+<div class="top-navigation">
+  <div>
+    <a href="introduce.html" class="menu-link">소개</a>
+    <a href="data.html" class="menu-link">자료</a>
+    <a href="develop.html" class="menu-link">개발</a>
+    <a href="faq.html" class="menu-link">Q&A</a>
+  </div>
+  <div>언어</div>
+</div>
+
+<!-- Hero Section -->
+<div class="hero">
+  <h1>쉽고 간편하게 시작하는 블록체인</h1>
+  <div class="buttons-container">
+    <a href="user.html" class="start-button">시작하기</a>
+  </div>
+</div>
+
+<!-- ✅ 새 소개 섹션 -->
+<section class="intro-section">
+  <h3>처음 시작하시는 분을 위한 간단한 설명</h3>
+  <div class="intro-container">
+    <div class="intro-text">
+      <p>
+        <strong>봉사활동의 가치를 블록체인으로 증명하는 플랫폼</strong>입니다.<br><br>
+        간단히 지갑을 생성하고, 봉사로 얻은 코인을 재화로 교환해 보세요.<br><br>
+        <span class="highlight">블록체인의 투명한 원리를 배우며 봉사의 참된 보람</span>까지 누리세요.
+      </p>
+    </div>
+    <div class="intro-image">
+      <img src="img/blockchainbanner.png" alt="블록체인 배너">
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+# Dependencies and local settings
+node_modules/
+.vscode/
+.env
+.env.*
+!.env.example
+*.log
+
+# Runtime data
+/uploads/
+/db.json
+
+# Personal documents and project reference materials
+/*.hwp
+/*.xlsx
+/*.pdf
+/*.jpg
+/*.mp4
+/Chain LAB 캡쳐 자료/
+
+# Operating system files
+Thumbs.db
+.DS_Store

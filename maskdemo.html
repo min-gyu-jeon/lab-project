@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MetaMask 연결 | Chain LAB</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f0f4f8; color: #143D60; }
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background-color: #ffffff; border-bottom: 1px solid #e5e7eb; }
+    .navbar .logo { font-weight: bold; font-size: 1.2rem; color: #111827; cursor: pointer; }
+    .navbar .nav-menu { display: flex; gap: 20px; margin-right: 75px; }
+    .navbar .nav-menu a { text-decoration: none; color: #374151; }
+    .navbar .lang { font-size: 0.9rem; color: #6b7280; cursor: pointer; }
+    .container { max-width: 600px; margin: 60px auto; background-color: #fff; padding: 30px; border-radius: 8px; text-align: center; }
+    h1 { font-size: 1.6rem; margin-bottom: 20px; }
+    button { padding: 10px 18px; border: none; border-radius: 5px; font-size: 1rem; font-weight: bold; color: white; cursor: pointer; }
+    #connectBtn { background-color: #3b82f6; }
+    #disconnectBtn { background-color: #e67e22; margin-left: 8px; }
+    #rewardBtn { background-color: #16a34a; margin-top: 10px; }
+    #wallet, #balance, #uploadStatus, #rewardStatus { margin-top: 15px; font-weight: 600; color: #111827; }
+    .warning-box { display: none; background-color: #fff4e5; border: 1px solid #ffa726; border-radius: 6px; padding: 15px; color: #bf360c; margin-top: 20px; font-weight: 600; }
+    .warning-box a { color: #d84315; text-decoration: underline; }
+    footer { text-align: center; padding: 20px; font-size: 0.9rem; color: #6b7280; background-color: #f9fafb; margin-top: 40px; border-top: 1px solid #e5e7eb; }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo" onclick="location.href='home.html'">Chain LAB</div>
+    <div class="nav-menu">
+      <a href="introduce.html">소개</a>
+      <a href="data.html">자료</a>
+      <a href="develop.html">개발</a>
+      <a href="faq.html">Q&A</a>
+    </div>
+    <div class="lang">언어</div>
+  </nav>
+
+  <div class="container">
+    <h1>MetaMask 연결</h1>
+    <button id="connectBtn">연결</button>
+    <button id="disconnectBtn">해제</button>
+    <p id="wallet">지갑: 연결 안 됨</p>
+    <p id="balance">현재 잔액: -</p>
+
+    <h3>봉사활동 인증서 업로드</h3>
+    <input type="file" id="pdfUpload" accept="application/pdf">
+    <p id="uploadStatus"></p>
+
+    <button id="rewardBtn">코인 지급</button>
+    <p id="rewardStatus"></p>
+
+    <div id="warningBox" class="warning-box">
+      ⚠️ MetaMask가 설치되어 있지 않습니다.<br>
+      블록체인 기능을 사용하려면 MetaMask 확장 프로그램을 설치하세요.<br>
+      <a href="https://metamask.io/download/" target="_blank">MetaMask 설치하기</a>
+    </div>
+  </div>
+
+  <script>
+    let web3, account, contract;
+
+    // 배포한 Solidity TimeCoin 주소 (Remix에서 복사)
+    const contractAddress = "여기에_배포한_주소_넣기"; // 예: 0x1234abcd...
+
+    // TimeCoin의 ABI (mint + balanceOf)
+    const contractABI = [
+      {
+        "inputs": [
+          {"internalType": "address", "name": "to", "type": "address"},
+          {"internalType": "uint256", "name": "amount", "type": "uint256"}
+        ],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{"internalType": "address", "name": "", "type": "address"}],
+        "name": "balanceOf",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
+
+    const walletDisplay = document.getElementById("wallet");
+    const warningBox = document.getElementById("warningBox");
+
+    function showWarning() { warningBox.style.display = 'block'; }
+    function hideWarning() { warningBox.style.display = 'none'; }
+
+    async function showBalance() {
+      if (!web3 || !account || !contract) return;
+      try {
+        const balance = await contract.methods.balanceOf(account).call();
+        const converted = web3.utils.fromWei(balance, "ether");
+        document.getElementById("balance").innerText = `보유 TimeCoin: ${converted} TMC`;
+      } catch (error) {
+        console.error("잔액 조회 실패:", error);
+      }
+    }
+
+    function setupEventListeners() {
+      window.ethereum.on('accountsChanged', (accs) => {
+        account = accs[0] || null;
+        walletDisplay.innerText = account ? "지갑: " + account : "지갑: 연결 안 됨";
+        if (account) showBalance();
+      });
+
+      window.ethereum.on('chainChanged', () => { console.log("네트워크 변경 감지됨"); });
+    }
+
+    async function connect() {
+      if (!window.ethereum) return showWarning();
+      hideWarning();
+      try {
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        account = accounts[0];
+        contract = new web3.eth.Contract(contractABI, contractAddress);
+        walletDisplay.innerText = "지갑: " + account;
+        await showBalance();
+        if (!window.ethereum.listeners('accountsChanged').length) setupEventListeners();
+      } catch (error) {
+        console.error("MetaMask 연결 오류:", error);
+        walletDisplay.innerText = "지갑: 연결 실패";
+      }
+    }
+
+    function disconnect() {
+      account = null; web3 = null; contract = null;
+      walletDisplay.innerText = "지갑: 연결 안 됨";
+      document.getElementById("balance").innerText = "보유 TimeCoin: -";
+      hideWarning();
+      alert("✅ MetaMask 연결 해제됨");
+    }
+
+    document.getElementById("pdfUpload").addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.type !== "application/pdf") {
+        document.getElementById("uploadStatus").innerText = "❌ PDF 파일만 업로드 가능합니다.";
+        return;
+      }
+      document.getElementById("uploadStatus").innerText = `✅ ${file.name} 업로드 완료`;
+    });
+
+    document.getElementById("rewardBtn").addEventListener("click", async function () {
+      if (!account) return alert("⚠️ 먼저 MetaMask를 연결하세요.");
+      const uploaded = document.getElementById("pdfUpload").files.length > 0;
+      if (!uploaded) return alert("⚠️ 먼저 PDF를 업로드하세요.");
+
+      document.getElementById("rewardStatus").innerText = "⏳ 코인 지급 처리 중...";
+      try {
+        // 봉사시간 1시간 = 1 TMC (PDF 1개당 1시간 가정)
+        const amount = web3.utils.toWei("1", "ether");
+        await contract.methods.mint(account, amount).send({ from: account });
+        document.getElementById("rewardStatus").innerText = "✅ 코인 지급 완료!";
+        await showBalance();
+      } catch (err) {
+        console.error("트랜잭션 실패:", err);
+        document.getElementById("rewardStatus").innerText = "❌ 코인 지급 실패";
+      }
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("connectBtn").addEventListener("click", connect);
+      document.getElementById("disconnectBtn").addEventListener("click", disconnect);
+      if (window.ethereum) hideWarning();
+    });
+  </script>
+</body>
+</html>

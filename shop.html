@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Chain LAB | 상점</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <style>
+    body { font-family:'Segoe UI',sans-serif;background-color:#f9fafb;color:#143D60;margin:0;padding:0;}
+    .navbar {display:flex;justify-content:space-between;align-items:center;padding:15px 25px;background-color:#fff;border-bottom:1px solid #e5e7eb;}
+    .logo {font-weight:bold;font-size:1.2rem;color:#111827;cursor:pointer;text-decoration:none;}
+    .logo:hover {color:#2563eb;}
+    .container {max-width:800px;margin:40px auto;background:#fff;border-radius:10px;padding:25px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+    h1,h2 {text-align:center;}
+    .item-list {display:flex;flex-direction:column;gap:15px;margin-top:20px;}
+    .item {border:1px solid #e5e7eb;border-radius:8px;padding:15px;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+    .item h3 {margin:0;font-size:1.1rem;}
+    .item p {margin:0;color:#555;}
+    .item-right {display:flex;align-items:center;gap:8px;}
+    .item-right input {width:60px;padding:4px 6px;border-radius:5px;border:1px solid #d1d5db;text-align:center;}
+    .item button {padding:6px 12px;border:none;border-radius:5px;font-weight:bold;background-color:#3b82f6;color:#fff;cursor:pointer;}
+    .item button:hover {background-color:#2563eb;}
+    #wallet,#tmcBalance {text-align:center;margin-top:10px;font-weight:bold;}
+    table {width:100%;border-collapse:collapse;margin-top:10px;}
+    th, td {border:1px solid #e5e7eb;padding:8px;text-align:center;font-size:0.9rem;}
+    th {background-color:#f3f4f6;}
+    .delete-btn {background-color:#dc2626;color:#fff;border:none;padding:8px 12px;border-radius:5px;font-weight:bold;cursor:pointer;margin-top:10px;}
+    .delete-btn:hover {background-color:#b91c1c;}
+    .primary {background-color:#3b82f6;color:#fff;border:none;border-radius:5px;padding:6px 10px;font-size:0.8rem;font-weight:bold;cursor:pointer;}
+    .primary[disabled] {opacity:0.4;cursor:default;}
+    .status-badge {padding:2px 6px;border-radius:999px;font-size:0.75rem;display:inline-block;}
+    .status-completed {background:#e0f2fe;color:#1d4ed8;}
+    .status-requested {background:#fef9c3;color:#92400e;}
+    .status-refunded {background:#dcfce7;color:#166534;}
+  </style>
+</head>
+<body>
+  <!-- ✅ 상단 네비게이션 -->
+  <nav class="navbar">
+    <a href="user.html" class="logo">Chain LAB</a>
+  </nav>
+
+  <div class="container">
+    <h1>Chain LAB 상점</h1>
+    <p id="wallet">지갑: 연결 안 됨</p>
+    <p id="tmcBalance">보유 TMC: -</p>
+    <div style="text-align:center;margin-bottom:20px;">
+      <button id="connectBtn" style="background-color:#16a34a;color:white;padding:10px 18px;border:none;border-radius:5px;font-weight:bold;">MetaMask 연결</button>
+    </div>
+
+    <!-- ✅ 상품 목록 (수량 선택 가능) -->
+    <div class="item-list">
+      <div class="item">
+        <div>
+          <h3>노트</h3><p>가격: 5 TMC</p>
+        </div>
+        <div class="item-right">
+          <input type="number" id="qty-note" value="1" min="1" />
+          <button onclick="buyItem('노트', 5, 'qty-note')">구매하기</button>
+        </div>
+      </div>
+
+      <div class="item">
+        <div>
+          <h3>볼펜</h3><p>가격: 5 TMC</p>
+        </div>
+        <div class="item-right">
+          <input type="number" id="qty-pen" value="1" min="1" />
+          <button onclick="buyItem('볼펜', 5, 'qty-pen')">구매하기</button>
+        </div>
+      </div>
+
+      <div class="item">
+        <div>
+          <h3>담요</h3><p>가격: 15 TMC</p>
+        </div>
+        <div class="item-right">
+          <input type="number" id="qty-blanket" value="1" min="1" />
+          <button onclick="buyItem('담요', 15, 'qty-blanket')">구매하기</button>
+        </div>
+      </div>
+
+      <div class="item">
+        <div>
+          <h3>핫팩</h3><p>가격: 3 TMC</p>
+        </div>
+        <div class="item-right">
+          <input type="number" id="qty-hotpack" value="1" min="1" />
+          <button onclick="buyItem('핫팩', 3, 'qty-hotpack')">구매하기</button>
+        </div>
+      </div>
+
+      <div class="item">
+        <div>
+          <h3>손선풍기</h3><p>가격: 10 TMC</p>
+        </div>
+        <div class="item-right">
+          <input type="number" id="qty-fan" value="1" min="1" />
+          <button onclick="buyItem('손선풍기', 10, 'qty-fan')">구매하기</button>
+        </div>
+      </div>
+
+      <div class="item">
+        <div>
+          <h3>기부하기</h3><p>가격: 20 TMC</p>
+        </div>
+        <div class="item-right">
+          <input type="number" id="qty-donate" value="1" min="1" />
+          <button onclick="buyItem('기부', 20, 'qty-donate')">기부하기</button>
+        </div>
+      </div>
+    </div>
+
+    <h2>내 구매 내역</h2>
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>상품명</th>
+          <th>수량</th>
+          <th>사용 TMC</th>
+          <th>구매일시</th>
+          <th>상태</th>
+          <th>환불 요청</th>
+        </tr>
+      </thead>
+      <tbody id="historyBody">
+        <tr><td colspan="6">내역이 없습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <div style="text-align:center;">
+      <button class="delete-btn" onclick="clearHistory()">전체 내역 삭제 (기록만 삭제)</button>
+    </div>
+  </div>
+
+  <script>
+    // ✅ 스마트컨트랙트 정보 (TimeCoin + 상점 주소)
+    const contractAddress = "0x079417f9E6DE2DE71b554247FF770B3c934E574d"; // 최신 TimeCoin 주소
+    const adminAddress   = "0x1C7D9A5102524023232965b1c86BbE8DF9BB6FE4"; // 상점(관리자) 주소
+    const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "mint",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Mint",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "rewardSelf",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "slash",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "balanceOfAddress",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "decimals",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+    let web3, account, timeCoin;
+
+    async function ensureConnected() {
+      if (!window.ethereum) {
+        alert("⚠️ MetaMask가 설치되어 있지 않습니다.");
+        return false;
+      }
+      if (!web3) {
+        web3 = new Web3(window.ethereum);
+      }
+      if (account) return true;
+
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      if (!accounts || accounts.length === 0) {
+        alert("⚠️ MetaMask 계정을 찾을 수 없습니다.");
+        return false;
+      }
+      account = accounts[0];
+      document.getElementById("wallet").innerText = "지갑: " + account;
+      timeCoin = new web3.eth.Contract(contractABI, contractAddress);
+      await showTmcBalance();
+      loadHistory();
+      return true;
+    }
+
+    async function connect() {
+      const ok = await ensureConnected();
+      if (ok) alert("✅ MetaMask 연결 완료");
+    }
+
+    async function showTmcBalance() {
+      if (!timeCoin || !account) {
+        document.getElementById("tmcBalance").innerText = "보유 TMC: -";
+        return;
+      }
+      try {
+        const raw = await timeCoin.methods.balanceOfAddress(account).call();
+        let tmc = Number(raw);
+        document.getElementById("tmcBalance").innerText = `보유 TMC: ${tmc} TMC`;
+      } catch (err) {
+        console.error("TMC 잔액 조회 실패:", err);
+        document.getElementById("tmcBalance").innerText = "보유 TMC: -";
+      }
+    }
+
+    // ✅ 구매 기능 (실제 transfer + 서버 기록)
+    async function buyItem(name, unitPrice, qtyInputId) {
+      const ok = await ensureConnected();
+      if (!ok) return;
+
+      const qty = parseInt(document.getElementById(qtyInputId).value, 10) || 1;
+      if (qty <= 0) {
+        alert("수량은 1 이상이어야 합니다.");
+        return;
+      }
+      const totalPrice = unitPrice * qty;
+
+      if (!confirm(`'${name}'을(를) ${qty}개, 총 ${totalPrice} TMC에 구매하시겠습니까?`)) return;
+
+      try {
+        // 1️⃣ 블록체인에서 코인 전송 (사용자 → 관리자)
+        await timeCoin.methods.transfer(adminAddress, totalPrice).send({ from: account });
+
+        // 2️⃣ 서버에 구매내역 저장
+        const res = await fetch("http://localhost:3000/buy", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address: account, item: name, price: totalPrice, quantity: qty })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          alert(`✅ '${name}' ${qty}개, 총 ${totalPrice} TMC 구매 완료!`);
+          await showTmcBalance();
+          loadHistory();
+        } else {
+          alert("❌ 서버 오류로 구매내역 저장 실패");
+        }
+      } catch (err) {
+        console.error("구매 실패:", err);
+        alert("⚠️ MetaMask 트랜잭션 실패 (가스 또는 잔액 부족)");
+      }
+    }
+
+    // ✅ 구매 내역 불러오기
+    async function loadHistory() {
+      if (!account) {
+        document.getElementById("historyBody").innerHTML =
+          "<tr><td colspan='6'>지갑을 먼저 연결하세요.</td></tr>";
+        return;
+      }
+
+      const res = await fetch(`http://localhost:3000/history?address=${account}`);
+      const data = await res.json();
+      const body = document.getElementById("historyBody");
+      body.innerHTML = "";
+
+      if (!data || data.length === 0) {
+        body.innerHTML = "<tr><td colspan='6'>내역이 없습니다.</td></tr>";
+        return;
+      }
+
+      data.forEach(h => {
+        const tr = document.createElement("tr");
+        const qty = h.quantity || 1;
+        const status = h.status || "completed";
+
+        let statusHtml = "";
+        if (status === "completed") {
+          statusHtml = `<span class="status-badge status-completed">완료</span>`;
+        } else if (status === "refund_requested") {
+          statusHtml = `<span class="status-badge status-requested">환불 요청됨</span>`;
+        } else if (status === "refunded") {
+          statusHtml = `<span class="status-badge status-refunded">환불 완료</span>`;
+        } else {
+          statusHtml = status;
+        }
+
+        let actionHtml = "";
+        if (status === "completed") {
+          actionHtml = `<button class="primary" onclick="requestRefund(${h.id})">환불 요청</button>`;
+        } else if (status === "refund_requested") {
+          actionHtml = `<button class="primary" disabled>요청 완료</button>`;
+        } else if (status === "refunded") {
+          actionHtml = `<button class="primary" disabled>환불 완료</button>`;
+        } else {
+          actionHtml = "-";
+        }
+
+        tr.innerHTML = `
+          <td>${h.item}</td>
+          <td>${qty}</td>
+          <td>${h.price}</td>
+          <td>${h.time}</td>
+          <td>${statusHtml}</td>
+          <td>${actionHtml}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    // ✅ 환불 요청 (서버에 플래그만 남김)
+    async function requestRefund(purchaseId) {
+      if (!account) return alert("⚠️ 먼저 MetaMask를 연결하세요.");
+      if (!confirm("해당 구매 건에 대해 환불을 요청하시겠습니까?\n관리자 승인 후 환불이 진행됩니다.")) return;
+
+      try {
+        const res = await fetch("http://localhost:3000/refundRequest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address: account, id: purchaseId })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          alert("✅ 환불 요청이 접수되었습니다.\n관리자가 확인 후 환불을 진행합니다.");
+          loadHistory();
+        } else {
+          alert("❌ 환불 요청 실패: " + (data.error || "알 수 없는 오류"));
+        }
+      } catch (e) {
+        console.error("환불 요청 실패:", e);
+        alert("⚠️ 서버 연결 실패");
+      }
+    }
+
+    // ✅ 전체 내역 삭제 (기록만 삭제, 코인에는 영향 없음)
+    async function clearHistory() {
+      if (!account) return alert("⚠️ 먼저 MetaMask를 연결하세요.");
+      if (!confirm("정말 모든 구매내역 기록을 삭제하시겠습니까?\n(온체인 코인 상태에는 영향 없습니다.)")) return;
+
+      try {
+        const res = await fetch("http://localhost:3000/clearHistory", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address: account })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("🗑️ 전체 구매내역 기록이 삭제되었습니다.");
+          loadHistory();
+        } else {
+          alert("❌ 서버 통신 오류");
+        }
+      } catch (err) {
+        console.error("내역 삭제 실패:", err);
+        alert("⚠️ 서버 연결 실패");
+      }
+    }
+
+    document.getElementById("connectBtn").addEventListener("click", connect);
+
+    // 초기 로드 시 계정 연결 상태 확인
+    window.addEventListener("load", async () => {
+      if (!window.ethereum) return;
+      web3 = new Web3(window.ethereum);
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        if (accounts.length > 0) {
+          account = accounts[0];
+          document.getElementById("wallet").innerText = "지갑: " + account;
+          timeCoin = new web3.eth.Contract(contractABI, contractAddress);
+          await showTmcBalance();
+          loadHistory();
+        }
+      } catch(e) {
+        console.error(e);
+      }
+
+      window.ethereum.on("accountsChanged", async (accounts) => {
+        if (!accounts || accounts.length === 0) {
+          account = null;
+          document.getElementById("wallet").innerText = "지갑: 연결 안 됨";
+          document.getElementById("tmcBalance").innerText = "보유 TMC: -";
+          document.getElementById("historyBody").innerHTML =
+            "<tr><td colspan='6'>지갑을 먼저 연결하세요.</td></tr>";
+        } else {
+          account = accounts[0];
+          document.getElementById("wallet").innerText = "지갑: " + account;
+          timeCoin = new web3.eth.Contract(contractABI, contractAddress);
+          await showTmcBalance();
+          loadHistory();
+        }
+      });
+
+      window.ethereum.on("chainChanged", () => location.reload());
+    });
+  </script>
+</body>
+</html>

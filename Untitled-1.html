@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>TimeCoin Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+</head>
+<body style="font-family: Arial; text-align: center; margin-top: 50px;">
+  <h1>⏳ TimeCoin Demo</h1>
+  <button id="connect">MetaMask 로그인</button>
+  <p id="account"></p>
+  <p>잔액: <span id="balance">0</span> TMC</p>
+  <button id="claim">코인 받기 (Mint)</button>
+
+  <script>
+    let web3;
+    let account;
+    const contractAddress = "여기에_배포한_계약주소"; // 배포 후 교체
+    const abi = [
+      {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {"indexed": true,"internalType": "address","name": "from","type": "address"},
+          {"indexed": true,"internalType": "address","name": "to","type": "address"},
+          {"indexed": false,"internalType": "uint256","name": "value","type": "uint256"}
+        ],
+        "name": "Transfer",
+        "type": "event"
+      },
+      {
+        "inputs": [{"internalType": "address","name": "_to","type": "address"},{"internalType": "uint256","name": "_amount","type": "uint256"}],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{"internalType": "address","name": "_to","type": "address"},{"internalType": "uint256","name": "_amount","type": "uint256"}],
+        "name": "transfer",
+        "outputs": [{"internalType": "bool","name": "success","type": "bool"}],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{"internalType": "address","name": "","type": "address"}],
+        "name": "balanceOf",
+        "outputs": [{"internalType": "uint256","name": "","type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
+
+    async function connectWallet() {
+      if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const accounts = await web3.eth.getAccounts();
+        account = accounts[0];
+        document.getElementById("account").innerText = "현재 계정: " + account;
+        updateBalance();
+      } else {
+        alert("MetaMask를 설치하세요!");
+      }
+    }
+
+    async function updateBalance() {
+      const contract = new web3.eth.Contract(abi, contractAddress);
+      const balance = await contract.methods.balanceOf(account).call();
+      document.getElementById("balance").innerText = balance;
+    }
+
+    async function claimCoins() {
+      const contract = new web3.eth.Contract(abi, contractAddress);
+      await contract.methods.mint(account, 1).send({ from: account });
+      updateBalance();
+    }
+
+    document.getElementById("connect").onclick = connectWallet;
+    document.getElementById("claim").onclick = claimCoins;
+  </script>
+</body>
+</html>

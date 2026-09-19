@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>거래소</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      background-color: #f0f4f8;
+      color: #333;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 32px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .navbar .logo {
+      font-weight: bold;
+      font-size: 1.4rem;
+      color: #111827;
+      cursor: pointer;
+    }
+
+    .navbar .nav-menu {
+      display: flex;
+      gap: 28px;
+      margin-right: 75px; 
+    }
+
+    .navbar .nav-menu a {
+      text-decoration: none;
+      color: #374151;
+      font-size: 1rem;
+    }
+
+    .navbar .lang {
+      font-size: 1rem;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #143D60;
+      margin-bottom: 20px;
+    }
+
+    .balance {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+    }
+
+    .balance span {
+      flex-grow: 1;
+      text-align: center;
+      margin-left: 70px;
+    }
+
+    .exchange-button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .exchange-button:hover {
+      background-color: #3a9642;
+    }
+
+    .items {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .item {
+      background-color: #f9fafb;
+      border-radius: 10px;
+      padding: 20px;
+      width: 240px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    .item h3 {
+      margin-bottom: 10px;
+    }
+
+    .item p {
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    .item button {
+      margin-top: 10px;
+      padding: 10px 16px;
+      background-color: #EB5B00;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .item button:hover {
+      background-color: #d14a00;
+    }
+
+    .charge-section {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #ccc;
+      text-align: center;
+    }
+
+    .charge-section input {
+      padding: 10px;
+      width: 200px;
+      font-size: 1rem;
+      margin-right: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .charge-section button {
+      padding: 10px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .charge-section button:hover {
+      background-color: #3a9642;
+    }
+
+    .history {
+      margin-top: 40px;
+      background: #f0f0f0;
+      padding: 20px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+
+    .history ul {
+      padding-left: 20px;
+    }
+
+    footer {
+      text-align: center;
+      margin: 50px 0 20px;
+      color: #888;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo" onclick="location.href='home.html'">Chain LAB</div>
+    <div class="nav-menu">
+      <a href="introduce.html">소개</a>
+      <a href="data.html">자료</a>
+      <a href="develop.html">개발</a>
+      <a href="faq.html">Q&A</a>
+    </div>
+    <div class="lang">언어</div>
+  </nav>
+
+  <div class="container">
+    <h2>토큰 거래소</h2>
+    <div class="balance">
+      <span>보유 토큰: <strong id="token">1.5</strong> LAB</span>
+      <button class="exchange-button" onclick="location.href='exchanged.html'">교환 내역</button>
+    </div>
+
+    <div class="items">
+      <div class="item">
+        <h3>아이템1</h3>
+        <p>아이템1 설명</p>
+        <p><strong>3.0 LAB</strong></p>
+        <button onclick="exchangeItem('아이템1', 3.0)">교환하기</button>
+      </div>
+
+      <div class="item">
+        <h3>아이템2</h3>
+        <p>아이템2 설명</p>
+        <p><strong>1.0 LAB</strong></p>
+        <button onclick="exchangeItem('아이템2', 1.0)">교환하기</button>
+      </div>
+
+      <div class="item">
+        <h3>아이템3</h3>
+        <p>아이템3 설명</p>
+        <p><strong>0.5 LAB</strong></p>
+        <button onclick="exchangeItem('아이템3', 0.5)">교환하기</button>
+      </div>
+    </div>
+
+    <div class="charge-section">
+      <h3>봉사시간으로 토큰 충전하기</h3>
+      <p>인증된 봉사시간: <span id="certifiedHours">12</span>시간</p>
+      <p>1시간 봉사 = 1 LAB</p>
+      <input type="number" id="volunteer" placeholder="봉사시간 입력 (시간 단위)" min="0" step="0.5">
+      <button onclick="chargeToken()">충전하기</button>
+    </div>
+
+    <div class="history" id="history" style="display:none;">
+      <h3>교환 내역</h3>
+      <ul id="historyList"></ul>
+    </div>
+  </div>
+
+  <footer></footer>
+
+  <script>
+    let token = 1.5;
+    let certifiedHours = 12;
+
+    function updateBalance() {
+      document.getElementById("token").textContent = token.toFixed(1);
+      document.getElementById("certifiedHours").textContent = certifiedHours;
+    }
+
+    function exchangeItem(itemName, cost) {
+      if (token < cost) {
+        alert("토큰이 부족합니다.");
+        return;
+      }
+
+      token -= cost;
+      updateBalance();
+
+      const time = new Date().toLocaleString();
+      const li = document.createElement("li");
+      li.textContent = `[${time}] ${itemName} 교환 완료 (−${cost} LAB)`;
+      document.getElementById("historyList").prepend(li);
+      document.getElementById("history").style.display = "block";
+
+      const exchangedItems = JSON.parse(localStorage.getItem('exchangedItems')) || [];
+      exchangedItems.push({ name: itemName, time });
+      localStorage.setItem('exchangedItems', JSON.stringify(exchangedItems));
+    }
+
+    function chargeToken() {
+      const hours = parseFloat(document.getElementById("volunteer").value);
+      if (!hours || hours <= 0) {
+        alert("유효한 봉사시간을 입력하세요.");
+        return;
+      }
+
+      if (hours > certifiedHours) {
+        alert("인증된 봉사시간이 부족합니다.");
+        return;
+      }
+
+      const earned = hours;
+      token += earned;
+      certifiedHours -= hours;
+      updateBalance();
+
+      const time = new Date().toLocaleString();
+      const li = document.createElement("li");
+      li.textContent = `[${time}] 봉사시간 ${hours}시간 입력 → +${earned.toFixed(1)} LAB 충전`;
+      document.getElementById("historyList").prepend(li);
+      document.getElementById("history").style.display = "block";
+
+      document.getElementById("volunteer").value = '';
+    }
+  </script>
+
+</body>
+</html>

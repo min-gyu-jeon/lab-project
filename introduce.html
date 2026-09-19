@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>소개</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f4f8;
+      color: #143D60;
+      line-height: 1.6;
+    }
+
+    /* 네비게이션 바 */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 32px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .navbar .logo {
+      font-weight: bold;
+      font-size: 1.4rem;
+      color: #111827;
+      cursor: pointer;
+    }
+    .navbar .nav-menu {
+      display: flex;
+      gap: 28px;
+      margin-right: 75px;
+    }
+    .navbar .nav-menu a {
+      text-decoration: none;
+      color: #374151;
+      font-size: 1rem;
+    }
+    .navbar .nav-menu a:hover {
+      color: #007bff;
+    }
+    .navbar .lang {
+      font-size: 1rem;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    /* 헤더 */
+    header {
+      text-align: center;
+      background-color: #111827;
+      color: white;
+      padding: 40px 20px;
+    }
+    header h1 {
+      margin-bottom: 10px;
+      font-size: 2rem;
+    }
+    header p {
+      font-size: 1rem;
+      color: #d1d5db;
+    }
+
+    /* 본문 */
+    main {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .manual-section {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    .manual-section h2 {
+      color: #143D60;
+      margin-bottom: 15px;
+      font-size: 1.4rem;
+    }
+    .manual-section p {
+      margin-bottom: 15px;
+    }
+    .manual-section ul {
+      list-style-type: disc;
+      padding-left: 20px;
+      line-height: 1.8em;
+    }
+    .manual-section li {
+      margin-bottom: 10px;
+    }
+
+    /* 링크 */
+    a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* 푸터 */
+    footer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #777;
+      margin: 40px 0 20px;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .navbar .nav-menu {
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 10px;
+        margin-right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 네비게이션 -->
+  <nav class="navbar">
+    <div class="logo">Chain LAB</div>
+    <div class="nav-menu">
+      <a href="introduce.html">소개</a>
+      <a href="data.html">자료</a>
+      <a href="develop.html">개발</a>
+      <a href="faq.html">Q&A</a>
+    </div>
+    <div class="lang">언어</div>
+  </nav>
+
+  <!-- 헤더 -->
+  <header>
+    <h1>소개</h1>
+  </header>
+
+  <!-- 본문 -->
+  <main>
+    <div class="manual-section">
+      <h2>플랫폼 소개</h2>
+      <p>Chain LAB은 암호화폐에 대한 이해와 실질적인 활용을 돕기 위해 설계되었습니다. <br>
+         사용자들이 암호화폐의 세계에 쉽게 접근할 수 있도록 안전하고 효과적인 환경을 제공합니다.</p>
+    </div>
+
+    <div class="manual-section">
+      <h2>기본 용어</h2>
+      <ul>
+        <li><strong>블록체인:</strong> 데이터를 안전하게 저장하는 분산형 장부 시스템으로, 모든 거래 기록이 투명하게 관리됩니다.</li>
+        <li><strong>지갑(Wallet):</strong> 암호화폐를 보관하고 전송하는 디지털 지갑으로, 개인의 자산을 안전하게 관리할 수 있습니다.</li>
+        <li><strong>거래소:</strong> 암호화폐를 사고파는 플랫폼으로, 다양한 암호화폐를 거래할 수 있는 장소입니다.</li>
+        <li><strong>스마트 계약(Smart Contract):</strong> 자동으로 실행되는 계약으로, 블록체인 기술을 기반으로 신뢰성을 높입니다.</li>
+      </ul>
+    </div>
+
+    <div class="manual-section">
+      <h2>이용 방법</h2>
+      <ul>
+        <li>회원 가입 후, 본인 인증 절차를 완료하세요.</li>
+        <li>지갑을 생성하고, 암호화폐를 구매하여 보관합니다.</li>
+        <li>거래소에서 암호화폐를 거래하고, 필요한 경우 출금합니다.</li>
+      </ul>
+    </div>
+
+    <div class="manual-section">
+      <h2>보안 수칙</h2>
+      <ul>
+        <li>비밀번호를 정기적으로 변경하여 보안을 강화하세요.</li>
+        <li>공용 네트워크 접속 시 VPN 사용을 권장합니다.</li>
+        <li>이메일 및 SMS로 오는 피싱 공격에 주의하세요.</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer>
+  </footer>
+
+  <script>
+    document.querySelector('.logo').addEventListener('click', function () {
+      window.location.href = 'home.html';
+    });
+  </script>
+</body>
+</html>

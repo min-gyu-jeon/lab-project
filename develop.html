@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>개발 | Chain LAB</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f4f8;
+      color: #143D60;
+      line-height: 1.6;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 32px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .navbar .logo {
+      font-weight: bold;
+      font-size: 1.4rem;
+      color: #111827;
+      cursor: pointer;
+    }
+
+    .navbar .nav-menu {
+      display: flex;
+      gap: 28px;
+      margin-right: 75px;
+    }
+
+    .navbar .nav-menu a {
+      text-decoration: none;
+      color: #374151;
+      font-size: 1rem;
+    }
+
+    .navbar .nav-menu a:hover {
+      color: #007bff;
+    }
+
+    .navbar .lang {
+      font-size: 1rem;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    header {
+      text-align: center;
+      background-color: #111827;
+      color: white;
+      padding: 40px 20px;
+    }
+
+    header h1 {
+      margin-bottom: 10px;
+      font-size: 2rem;
+    }
+
+    .manual-section {
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 30px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .manual-section h2 {
+      color: #143D60;
+      border-left: 4px solid #27496d;
+      padding-left: 10px;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      font-size: 1.4rem;
+    }
+
+    .manual-section ul {
+      list-style-type: disc;
+      padding-left: 25px;
+      margin-bottom: 20px;
+    }
+
+    .manual-section li {
+      margin-bottom: 8px;
+      color: #374151;
+    }
+
+    .progress-section {
+      margin-top: 40px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .progress-step {
+      background-color: #f9fafb;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border-left: 4px solid #007bff;
+    }
+
+    .progress-step strong {
+      display: block;
+      color: #143D60;
+      margin-bottom: 5px;
+    }
+
+    .link-btn {
+      display: inline-block;
+      margin-top: 25px;
+      background-color: #143D60;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background-color 0.2s ease;
+    }
+
+    .link-btn:hover {
+      background-color: #1d4ed8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 10px;
+      font-size: 0.9rem;
+      color: #6b7280;
+      background-color: #f9fafb;
+      margin-top: 60px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .navbar .nav-menu {
+        margin-top: 10px;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-right: 0;
+      }
+
+      .manual-section {
+        margin: 30px 20px;
+        padding: 20px;
+      }
+
+      header h1 {
+        font-size: 1.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- JS가 페이지를 완성 -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // ✅ 상단 네비게이션
+      const nav = document.createElement("nav");
+      nav.className = "navbar";
+      nav.innerHTML = `
+        <div class="logo">Chain LAB</div>
+        <div class="nav-menu">
+          <a href="introduce.html">소개</a>
+          <a href="data.html">자료</a>
+          <a href="develop.html" class="active">개발</a>
+          <a href="faq.html">Q&A</a>
+        </div>
+        <div class="lang">언어</div>
+      `;
+
+      // ✅ 헤더
+      const header = document.createElement("header");
+      header.innerHTML = `<h1>개발</h1>`;
+
+      // ✅ 본문
+      const section = document.createElement("div");
+      section.className = "manual-section";
+      section.innerHTML = `
+        <h2>개발 개요</h2>
+        <ul>
+          <li>간단한 블록체인 원리 이해</li>
+          <li>직관적이고 친화적인 사용자 중심의 UI/UX 설계</li>
+          <li>MetaMask 연동을 통한 실제 지갑 연결 기능 구현</li>
+        </ul>
+
+        <h2>개발 도구</h2>
+        <ul>
+          <li>Visual Studio Code</li>
+          <li>Ganache</li>
+          <li>MetaMask + Web3.js</li>
+        </ul>
+
+        <div class="progress-section">
+          <h2>개발 과정</h2>
+          <div class="progress-step">
+            <strong>1️⃣ 설계 단계</strong>
+            프로젝트 구조, UI/UX 설계
+          </div>
+          <div class="progress-step">
+            <strong>2️⃣ 구현 단계</strong>
+            UI/UX 구현 및 MetaMask 연동 테스트
+          </div>
+          <div class="progress-step">
+            <strong>3️⃣ 검증 단계</strong>
+            지갑 연결 및 데이터 검증 로직 테스트
+          </div>
+        </div>
+
+        <div style="text-align:center;">
+          <a href="mask.html" class="link-btn">🔗 MetaMask 연동 바로가기</a>
+        </div>
+      `;
+
+      // ✅ 푸터
+      const footer = document.createElement("footer");
+      footer.innerHTML = `© 2025 Chain LAB. All rights reserved.`;
+
+      // ✅ body에 모두 추가
+      document.body.append(nav, header, section, footer);
+
+      // ✅ 로고 클릭 시 홈 이동
+      nav.querySelector(".logo").addEventListener("click", () => {
+        window.location.href = "home.html";
+      });
+    });
+  </script>
+
+</body>
+</html>

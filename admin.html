@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 페이지 | Chain LAB</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+  <style>
+    body {font-family:'Segoe UI',sans-serif;background-color:#f9fafb;color:#111827;margin:0;padding:20px;}
+    h1,h2,h3{text-align:left;margin:10px 0;}
+    .section{max-width:1000px;margin:20px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+    table{width:100%;border-collapse:collapse;margin-top:10px;background-color:white;font-size:0.9rem;}
+    th,td{border:1px solid #e5e7eb;padding:8px;text-align:center;vertical-align:middle;}
+    th{background-color:#f3f4f6;}
+    button{padding:8px 14px;border:none;border-radius:5px;color:white;font-weight:bold;cursor:pointer;font-size:0.9rem;}
+    .primary{background-color:#3b82f6;}
+    .primary:hover{background-color:#2563eb;}
+    .danger{background-color:#dc2626;}
+    .danger:hover{background-color:#b91c1c;}
+    .wallet-info{font-weight:bold;margin:4px 0;}
+    .badge{display:inline-block;padding:2px 6px;border-radius:999px;font-size:0.75rem;}
+    .badge-ok{background:#dcfce7;color:#166534;}
+    .badge-warn{background:#fee2e2;color:#b91c1c;}
+    .small{font-size:0.85rem;color:#6b7280;}
+
+    /* 트랜잭션 해시 스타일 (ellipsis + 툴팁 + 복사 버튼) */
+    .tx-cell {
+      max-width: 240px;          /* 셀 최대 너비 (조정 가능) */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+    .tx-link {
+      text-decoration: none;
+      color: #2563eb;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    .copy-btn {
+      margin-left: 8px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      border: none;
+      background: #10b981;
+      color: white;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background:#059669; }
+    .small-tx { font-size:0.8rem; color:#374151; font-family:monospace; }
+
+    /* 반응형: 화면 작아지면 tx-cell 줄임 */
+    @media (max-width: 900px) {
+      .tx-cell { max-width: 140px; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="section" style="text-align:left;">
+    <h1>Chain LAB 관리자 페이지</h1>
+    <button id="connectBtn" class="primary">🦊 MetaMask 관리자 지갑 연결</button>
+    <p id="adminWallet" class="wallet-info">관리자 지갑: 연결 안 됨</p>
+    <p id="shopBalance" class="wallet-info">상점(관리자) 보유 TMC: -</p>
+  </div>
+
+  <!-- 📂 섹션 1: 봉사활동 업로드 내역 + 회수(벌점) -->
+  <div class="section">
+    <h2>봉사활동 업로드 내역 (자동 보상 기록 + 회수)</h2>
+    <p class="small">허위 봉사로 판단된 경우, 해당 행 기준으로 TMC를 <strong>회수(벌점)</strong>합니다.</p>
+    <button id="refreshFilesBtn" class="primary">🔄 업로드 목록 새로고침</button>
+    <table>
+      <thead>
+        <tr>
+          <th>파일명</th>
+          <th>지갑 주소</th>
+          <th>봉사시간(h)</th>
+          <th>지급 코인(TMC)</th>
+          <th>상태</th>
+          <th>업로드 시각</th>
+          <th>트랜잭션 해시</th>
+          <th>회수(벌점)</th>
+        </tr>
+      </thead>
+      <tbody id="fileList">
+        <tr><td colspan="8">데이터를 불러오는 중이거나 내역이 없습니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 🛒 섹션 2: 상점 환불 요청 목록 + 환불 실행 -->
+  <div class="section">
+    <h2>상점 환불 요청 목록</h2>
+    <p class="small">
+      사용자가 상점 페이지에서 “환불 요청”을 누른 내역이 표시됩니다.<br />
+      승인 시 상점 지갑에서 사용자 지갑으로 TMC를 다시 전송합니다.
+    </p>
+    <button id="refreshRefundBtn" class="primary">🔄 환불 요청 새로고침</button>
+
+    <table style="margin-top:15px;">
+      <thead>
+        <tr>
+          <th>사용자 지갑 주소</th>
+          <th>상품명</th>
+          <th>사용된 TMC</th>
+          <th>수량</th>
+          <th>구매일시</th>
+          <th>요청시각</th>
+          <th>환불 실행</th>
+        </tr>
+      </thead>
+      <tbody id="refundBody">
+        <tr><td colspan="7">현재 환불 요청이 없습니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+<script>
+  // ==========================
+  // ⚙️ 컨트랙트 설정 (필요시 주소 바꿔서 사용하세요)
+  // ==========================
+  const contractAddress = "0x079417f9E6DE2DE71b554247FF770B3c934E574d"; // TimeCoin 배포 주소
+  const shopOwner       = "0x1C7D9A5102524023232965b1c86BbE8DF9BB6FE4"; // 상점(관리자) 지갑 주소
+
+  const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "mint",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Mint",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "rewardSelf",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "slash",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "balanceOfAddress",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "decimals",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+  let web3, adminAccount, timeCoin;
+
+  // -----------------------
+  // 헬퍼: tx 표시/복사/익스플로러 링크
+  // -----------------------
+  function shortTx(tx, front=8, back=6) {
+    if (!tx) return "-";
+    if (tx.length <= front + back + 3) return tx;
+    return tx.slice(0, front) + "..." + tx.slice(tx.length - back);
+  }
+
+  async function copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("클립보드에 복사되었습니다.");
+    } catch (e) {
+      console.error("복사 실패:", e);
+      prompt("복사에 실패했습니다. 전체 해시를 수동으로 복사하세요:", text);
+    }
+  }
+
+  function explorerLink(txHash) {
+    if (!txHash) return "#";
+    // 기본: Etherscan 메인넷. (테스트넷/로컬은 작동하지 않을 수 있음)
+    return `https://etherscan.io/tx/${encodeURIComponent(txHash)}`;
+  }
+
+  // DOMContentLoaded - 이벤트 바인딩 및 초기화
+  window.addEventListener("DOMContentLoaded", () => {
+    const connectBtn      = document.getElementById("connectBtn");
+    const adminWalletEl   = document.getElementById("adminWallet");
+    const shopBalanceEl   = document.getElementById("shopBalance");
+    const fileListBody    = document.getElementById("fileList");
+    const refreshFilesBtn = document.getElementById("refreshFilesBtn");
+    const refundBody      = document.getElementById("refundBody");
+    const refreshRefundBtn= document.getElementById("refreshRefundBtn");
+
+    // ==========================
+    // 관리자 연결 보장 함수
+    // ==========================
+    async function ensureAdminConnected() {
+      if (!window.ethereum) {
+        alert("⚠️ MetaMask가 설치되어 있지 않습니다.");
+        return false;
+      }
+      if (!web3) {
+        web3 = new Web3(window.ethereum);
+      }
+      if (!adminAccount) {
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        if (!accounts || accounts.length === 0) {
+          alert("⚠️ MetaMask 계정을 찾을 수 없습니다.");
+          return false;
+        }
+        adminAccount = accounts[0];
+        adminWalletEl.innerText = "관리자 지갑: " + adminAccount;
+        timeCoin = new web3.eth.Contract(contractABI, contractAddress);
+        await updateShopBalance(shopBalanceEl);
+      }
+      return true;
+    }
+
+    // ==========================
+    // 연결 버튼
+    // ==========================
+    connectBtn.addEventListener("click", async () => {
+      const ok = await ensureAdminConnected();
+      if (ok) {
+        await loadFiles(fileListBody);
+        await loadRefundRequests(refundBody);
+        alert("✅ 관리자 MetaMask 연결 완료");
+      }
+    });
+
+    // 계정/체인 변경 대응
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", (accounts) => {
+        if (!accounts || accounts.length === 0) {
+          adminAccount = null;
+          adminWalletEl.innerText = "관리자 지갑: 연결 안 됨";
+          shopBalanceEl.innerText = "상점(관리자) 보유 TMC: -";
+        } else {
+          adminAccount = accounts[0];
+          adminWalletEl.innerText = "관리자 지갑: " + adminAccount;
+        }
+      });
+      window.ethereum.on("chainChanged", () => location.reload());
+    }
+
+    // 새로고침 버튼 바인딩
+    refreshFilesBtn.addEventListener("click", async () => { await loadFiles(fileListBody); });
+    refreshRefundBtn.addEventListener("click", async () => { await loadRefundRequests(refundBody); });
+
+    // 회수(벌점) 함수
+    window.slashFrom = async (userAddress, defaultAmount) => {
+      const ok = await ensureAdminConnected();
+      if (!ok) return;
+
+      const input = prompt(
+        `회수(벌점)할 TMC 수량을 입력하세요.\n(권장 기본값: ${defaultAmount} TMC)`,
+        defaultAmount && defaultAmount > 0 ? defaultAmount : ""
+      );
+      if (input === null) return; // 취소
+
+      const amount = Number(input);
+      if (!amount || amount <= 0) {
+        alert("❌ 잘못된 수량입니다.");
+        return;
+      }
+
+      try {
+        const tx = await timeCoin.methods
+          .slash(userAddress, amount)
+          .send({ from: adminAccount });
+
+        alert(`✅ 회수(벌점) 완료!\n사용자: ${userAddress}\n회수량: ${amount} TMC\nTx: ${tx.transactionHash}`);
+        await updateShopBalance(shopBalanceEl);
+        await loadFiles(fileListBody);
+      } catch (e) {
+        console.error("회수 실패:", e);
+        alert("⚠️ 회수 트랜잭션 실패 (권한 또는 잔액 부족 여부 확인). 콘솔 확인하세요.");
+      }
+    };
+
+    // 환불 실행 (상점 -> 사용자)
+    window.refundFromShop = async (purchaseId, userAddress, amount) => {
+      const ok = await ensureAdminConnected();
+      if (!ok) return;
+
+      if (adminAccount.toLowerCase() !== shopOwner.toLowerCase()) {
+        alert("⚠️ 현재 연결된 MetaMask 계정이 상점 지갑과 다릅니다.\n환불은 상점 지갑(shopOwner)로만 가능합니다.");
+        return;
+      }
+
+      if (!confirm(`사용자 ${userAddress} 에게 ${amount} TMC 환불을 실행하시겠습니까?`)) return;
+
+      try {
+        const tx = await timeCoin.methods.transfer(userAddress, amount).send({ from: adminAccount });
+
+        // 서버에 환불 완료 상태 반영
+        const res = await fetch("http://localhost:3000/refundDone", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: purchaseId, address: userAddress })
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          alert("⚠️ 온체인 환불은 되었지만, 서버 상태 업데이트에 실패했습니다.\n관리자에게 문의하세요.");
+        } else {
+          alert(`✅ 환불 완료!\n사용자: ${userAddress}\n환불량: ${amount} TMC\nTx: ${tx.transactionHash}`);
+        }
+
+        await updateShopBalance(shopBalanceEl);
+        await loadRefundRequests(refundBody);
+      } catch (e) {
+        console.error("환불 실패:", e);
+        alert("⚠️ 환불 트랜잭션 실패 (잔액 또는 가스 확인). 콘솔 확인하세요.");
+      }
+    };
+
+    // 최초 로드: (연결 되어 있으면 자동으로 잔액/목록 불러오기)
+    (async () => {
+      if (!window.ethereum) return;
+      web3 = new Web3(window.ethereum);
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        if (accounts.length > 0) {
+          adminAccount = accounts[0];
+          adminWalletEl.innerText = "관리자 지갑: " + adminAccount;
+          timeCoin = new web3.eth.Contract(contractABI, contractAddress);
+          await updateShopBalance(shopBalanceEl);
+          await loadFiles(fileListBody);
+          await loadRefundRequests(refundBody);
+        }
+      } catch (e) {
+        console.error("초기 연결 실패:", e);
+      }
+    })();
+
+  });
+
+  // 관리자(상점) 잔액 표시
+  async function updateShopBalance(shopBalanceEl) {
+    if (!timeCoin || !shopOwner) {
+      shopBalanceEl.innerText = "상점(관리자) 보유 TMC: -";
+      return;
+    }
+    try {
+      const raw = await timeCoin.methods.balanceOfAddress(shopOwner).call();
+      let tmc = Number(raw);
+      shopBalanceEl.innerText = `상점(관리자) 보유 TMC: ${tmc} TMC`;
+    } catch (e) {
+      console.error("관리자 잔액 조회 실패:", e);
+      shopBalanceEl.innerText = "상점(관리자) 보유 TMC: (조회 실패)";
+    }
+  }
+
+  // 업로드 목록 불러오기 (tx 해시 셀 처리 포함)
+  async function loadFiles(tbodyEl) {
+    try {
+      const res = await fetch("http://localhost:3000/files");
+      const data = await res.json();
+      tbodyEl.innerHTML = "";
+
+      if (!data || data.length === 0) {
+        tbodyEl.innerHTML = "<tr><td colspan='8'>업로드된 파일이 없습니다.</td></tr>";
+        return;
+      }
+
+      data.forEach(f => {
+        const tr = document.createElement("tr");
+        const hours  = (f.hours !== undefined && f.hours !== null) ? f.hours : "-";
+        const amount = (f.amount !== undefined && f.amount !== null) ? f.amount : "-";
+        const statusText = f.status || (f.approved ? "approved" : "pending");
+        const badgeClass = (statusText === "auto_paid" || statusText === "approved") ? "badge-ok" : "badge-warn";
+        const safeAmount = typeof amount === "number" ? amount : Number(amount) || 0;
+
+        const txHash = f.txHash || "";
+        const txCellHtml = txHash
+          ? `<td class="tx-cell" title="${txHash}">
+               <a class="tx-link" href="${explorerLink(txHash)}" target="_blank" rel="noopener noreferrer">
+                 ${shortTx(txHash)}
+               </a>
+               <button class="copy-btn" onclick="copyToClipboard('${txHash}')">복사</button>
+             </td>`
+          : `<td class="tx-cell">-</td>`;
+
+        tr.innerHTML = `
+          <td><a href="http://localhost:3000/${f.filepath}" target="_blank">${f.filename}</a></td>
+          <td>${f.address}</td>
+          <td>${hours}</td>
+          <td>${amount}</td>
+          <td><span class="badge ${badgeClass}">${statusText}</span></td>
+          <td>${f.uploadTime || "-"}</td>
+          ${txCellHtml}
+          <td>
+            <button class="danger"
+              onclick="slashFrom('${f.address}', ${safeAmount || 0})">
+              회수
+            </button>
+          </td>
+        `;
+        tbodyEl.appendChild(tr);
+      });
+    } catch (e) {
+      console.error("파일 목록 불러오기 실패:", e);
+      tbodyEl.innerHTML = "<tr><td colspan='8'>⚠️ 서버에서 데이터를 불러오지 못했습니다.</td></tr>";
+    }
+  }
+
+  // 환불 요청 목록 불러오기 (환불 테이블에는 txHash 없음 — 그대로 표시)
+  async function loadRefundRequests(tbodyEl) {
+    try {
+      const res = await fetch("http://localhost:3000/refundRequests");
+      const data = await res.json();
+      tbodyEl.innerHTML = "";
+
+      if (!data || data.length === 0) {
+        tbodyEl.innerHTML = "<tr><td colspan='7'>현재 환불 요청이 없습니다.</td></tr>";
+        return;
+      }
+
+      data.forEach(r => {
+        const tr = document.createElement("tr");
+        const qty = r.quantity || 1;
+        const reqTime = r.refundRequestedAt || "-";
+
+        tr.innerHTML = `
+          <td>${r.address}</td>
+          <td>${r.item}</td>
+          <td>${r.price}</td>
+          <td>${qty}</td>
+          <td>${r.time}</td>
+          <td class="small">${reqTime}</td>
+          <td>
+            <button class="primary"
+              onclick="refundFromShop(${r.id}, '${r.address}', ${r.price})">
+              환불 실행
+            </button>
+          </td>
+        `;
+        tbodyEl.appendChild(tr);
+      });
+    } catch (e) {
+      console.error("환불 요청 불러오기 실패:", e);
+      tbodyEl.innerHTML = "<tr><td colspan='7'>⚠️ 서버에서 환불 요청 목록을 불러오지 못했습니다.</td></tr>";
+    }
+  }
+</script>
+</body>
+</html>

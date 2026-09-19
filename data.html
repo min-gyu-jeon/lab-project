@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>자료</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f4f8;
+      color: #143D60;
+      line-height: 1.6;
+    }
+
+    /* 네비게이션 바 */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 32px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .navbar .logo {
+      font-weight: bold;
+      font-size: 1.4rem;
+      color: #111827;
+      cursor: pointer;
+    }
+    .navbar .nav-menu {
+      display: flex;
+      gap: 28px;
+      margin-right: 75px;
+    }
+    .navbar .nav-menu a {
+      text-decoration: none;
+      color: #374151;
+      font-size: 1rem;
+    }
+    .navbar .nav-menu a:hover {
+      color: #007bff;
+    }
+    .navbar .lang {
+      font-size: 1rem;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    /* 헤더 */
+    header {
+      text-align: center;
+      background-color: #111827;
+      color: white;
+      padding: 40px 20px;
+    }
+    header h1 {
+      margin-bottom: 10px;
+      font-size: 2rem;
+    }
+    header p {
+      font-size: 1rem;
+      color: #d1d5db;
+    }
+
+    /* 카드 컨테이너 */
+    .card-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 40px auto;
+      max-width: 1200px;
+      flex-wrap: wrap;
+      padding: 0 20px;
+    }
+
+    /* 카드 */
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      width: 300px;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+    }
+    .card h2 {
+      color: #111827;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+    .card ul {
+      list-style-type: disc;
+      padding-left: 20px;
+      text-align: left;
+      color: #374151;
+      font-size: 0.95rem;
+    }
+    .card li {
+      margin-bottom: 8px;
+    }
+
+    /* 푸터 */
+    footer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #777;
+      margin: 40px 0 20px;
+    }
+
+    /* 링크 */
+    a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* 반응형 */
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .navbar .nav-menu {
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 10px;
+        margin-right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 네비게이션 -->
+  <nav class="navbar">
+    <div class="logo">Chain LAB</div>
+    <div class="nav-menu">
+      <a href="introduce.html">소개</a>
+      <a href="data.html">자료</a>
+      <a href="develop.html">개발</a>
+      <a href="faq.html">Q&A</a>
+    </div>
+    <div class="lang">언어</div>
+  </nav>
+
+  <!-- 헤더 -->
+  <header>
+    <h1>자료</h1>
+  </header>
+
+  <!-- 카드 섹션 -->
+  <div class="card-container">
+
+    <div class="card">
+      <h2>블록체인 기초 개념</h2>
+      <ul>
+        <li>블록: 거래 정보를 담은 데이터 묶음</li>
+        <li>체인: 블록 간의 연결 구조</li>
+        <li>탈중앙화: 중앙 서버 없이 참여자 모두가 관리</li>
+        <li>해시 함수: 데이터를 고정된 길이로 암호화</li>
+        <li>채굴: 블록 생성에 기여하는 작업</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>스마트 계약이란?</h2>
+      <ul>
+        <li>조건이 만족되면 자동 실행되는 계약</li>
+        <li>중개자 없이 신뢰성 보장</li>
+        <li>예: 보험 자동 지급, 투표 시스템</li>
+        <li>장점: 투명성, 자동성</li>
+        <li>단점: 오류 수정 어려움</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>거래와 트랜잭션 흐름</h2>
+      <ul>
+        <li>지갑에서 송금 요청</li>
+        <li>개인키로 서명</li>
+        <li>트랜잭션이 네트워크로 전파</li>
+        <li>검증 후 블록에 포함</li>
+        <li>블록체인에 영구 기록</li>
+        <li>다수 노드의 확인을 거침</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>퍼블릭 vs 프라이빗</h2>
+      <ul>
+        <li>퍼블릭: 누구나 접근 가능</li>
+        <li>프라이빗: 승인된 사용자만 접근</li>
+        <li>퍼블릭: 완전한 탈중앙화</li>
+        <li>프라이빗: 기업 내부 시스템 활용</li>
+        <li>사용 목적에 따라 선택</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>NFT이란?</h2>
+      <ul>
+        <li>Non-Fungible Token: 대체 불가능한 토큰</li>
+        <li>디지털 자산의 소유권 증명</li>
+        <li>예: 이미지, 영상, 음악, 게임 아이템</li>
+        <li>투자 및 수집 대상으로 주목</li>
+        <li>전용 마켓플레이스에서 거래</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>보안과 해킹 사례</h2>
+      <ul>
+        <li>피싱 및 키 유출 위험</li>
+        <li>스마트 계약 취약점 이용</li>
+        <li>보안 감사를 통해 예방 필요</li>
+        <li>지갑 보안의 중요성</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- 푸터 -->
+  <footer>
+  </footer>
+
+  <script>
+    document.querySelector('.logo').addEventListener('click', function () {
+      window.location.href = 'home.html';
+    });
+  </script>
+</body>
+</html>

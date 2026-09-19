@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Q&A</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f4f8;
+      color: #143D60;
+      line-height: 1.6;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 32px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .navbar .logo {
+      font-weight: bold;
+      font-size: 1.4rem;
+      color: #111827;
+      cursor: pointer;
+    }
+
+    .navbar .nav-menu {
+      display: flex;
+      gap: 28px;
+      margin-right: 75px;
+    }
+
+    .navbar .nav-menu a {
+      text-decoration: none;
+      color: #374151;
+      font-size: 1rem;
+    }
+
+    .navbar .lang {
+      font-size: 1rem;
+      color: #6b7280;
+      cursor: pointer;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    .manual-section {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .manual-section h2 {
+      color: #143D60;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #111827;
+      padding-bottom: 5px;
+    }
+
+    .manual-section ul {
+      list-style-type: none;
+      padding-left: 0;
+      line-height: 1.8em;
+    }
+
+    .manual-section li {
+      margin-bottom: 10px;
+      background: #e0f7fa;
+      padding: 10px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .manual-section li:hover {
+      background: #b2ebf2;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #777;
+      margin: 40px 0 20px;
+    }
+
+    a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .contact-button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .contact-button:hover {
+      background-color: #2563eb;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .navbar .nav-menu {
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 10px;
+        margin-right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Chain LAB</div>
+    <div class="nav-menu">
+      <a href="introduce.html">소개</a>
+      <a href="data.html">자료</a>
+      <a href="develop.html">개발</a>
+      <a href="faq.html">Q&A</a>
+    </div>
+    <div class="lang">언어</div>
+  </nav>
+
+  <h1>Q&A</h1>
+
+  <div class="manual-section">
+    <h2>자주 묻는 질문</h2>
+    <p>여기에는 암호화폐와 관련된 일반적인 질문과 그에 대한 답변이 포함되어 있습니다.</p>
+    <ul>
+      <li><strong>암호화폐를 어떻게 안전하게 보관하나요?</strong><br>암호화폐를 거래소에 두지 않고, 소프트웨어 지갑을 사용하여 오프라인 상태로 보관하는 것이 좋습니다. <br>또한, 주기적으로 백업을 하고, 강력한 비밀번호를 사용하는 것이 중요합니다.</li>
+      <li><strong>암호화폐의 거래 수수료는 어떻게 결정되나요?</strong><br>거래의 복잡성과 네트워크의 혼잡도에 따라 달라집니다.</li>
+      <li><strong>암호화폐의 변동성은 왜 이렇게 큰가요?</strong><br>시장 수요, 투자자 심리, 규제 변화 등이 가격에 영향을 미칩니다.</li>
+    </ul>
+
+    <h2>기타 질문</h2>
+    <p>추가적인 질문이 있으시면 언제든지 문의해 주세요.</p>
+    <ul>
+      <li><strong>스마트 계약의 주요 장점은 무엇인가요?</strong><br>자동화된 계약 이행, 중개자 없이 거래 가능, 투명성 제공 등이 있습니다.</li>
+      <li><strong>암호화폐의 세금 문제는 어떻게 처리하나요?</strong><br>국가별로 다르지만, 대부분의 국가에서 자본 이득세가 적용됩니다.</li>
+    </ul>
+    
+    <a href="contact.html" class="contact-button">문의하기</a>
+  </div>
+
+  <footer>
+  </footer>
+
+  <script>
+    document.querySelector('.logo').addEventListener('click', function () {
+      window.location.href = 'home.html';
+    });
+  </script>
+
+</body>
+</html>
